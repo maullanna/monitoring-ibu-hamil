@@ -161,26 +161,54 @@
 @section('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Sample data for chart (replace with real data later)
+    // Data real dari controller
+    const chartData = @json($chartData);
+    
     const ctx = document.getElementById('waterIntakeChart').getContext('2d');
     new Chart(ctx, {
         type: 'line',
         data: {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            labels: chartData.labels,
             datasets: [{
                 label: 'Rata-rata Asupan Air (ml)',
-                data: [1800, 1900, 2100, 1950, 2200, 2000],
+                data: chartData.data,
                 borderColor: 'rgb(75, 192, 192)',
-                tension: 0.1
+                backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                tension: 0.1,
+                fill: true
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Statistik Asupan Air Minum 7 Hari Terakhir'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.parsed.y + ' ml';
+                        }
+                    }
+                }
+            },
             scales: {
                 y: {
                     beginAtZero: true,
-                    max: 3000
+                    max: 3000,
+                    ticks: {
+                        callback: function(value) {
+                            return value + ' ml';
+                        }
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Tanggal'
+                    }
                 }
             }
         }

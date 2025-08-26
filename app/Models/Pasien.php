@@ -13,11 +13,11 @@ class Pasien extends Model
 
     protected $fillable = [
         'user_id',
-        'nik',
         'tanggal_lahir',
         'alamat',
         'usia_kehamilan_minggu',
         'target_minum_ml',
+        'foto',
     ];
 
     protected $casts = [

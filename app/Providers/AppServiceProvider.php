@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\URL;
 use App\Models\PengaturanAplikasi;
 
 class AppServiceProvider extends ServiceProvider
@@ -21,6 +22,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Force HTTPS for NGROK compatibility
+        if (request()->isSecure() || str_contains(request()->getHost(), 'ngrok')) {
+            URL::forceScheme('https');
+        }
+        
         // Share pengaturan aplikasi to all admin views
         View::composer('layouts.admin', function ($view) {
             $pengaturan = PengaturanAplikasi::first();

@@ -1,0 +1,83 @@
+/* Custom CSS untuk memperbaiki masalah toggle mobile */
+
+/* Pastikan hanya ada satu toggle yang ditampilkan di mobile */
+@media (max-width: 768px) {
+    /* Sembunyikan sidebar toggle desktop di mobile */
+    .sidebar-toggle-outside {
+        display: none !important;
+    }
+    
+    /* Tampilkan mobile menu toggle di mobile */
+    .mobile-menu-toggle {
+        display: block !important;
+        position: fixed !important;
+        top: 20px !important;
+        right: 20px !important;
+        z-index: 1001 !important;
+    }
+    
+    /* Sembunyikan mobile menu toggle di desktop */
+    .sidebar-toggle-outside {
+        display: none !important;
+    }
+}
+
+@media (min-width: 769px) {
+    /* Tampilkan sidebar toggle desktop di desktop */
+    .sidebar-toggle-outside {
+        display: block !important;
+        position: fixed !important;
+        top: 20px !important;
+        left: 20px !important;
+        z-index: 1001 !important;
+    }
+    
+    /* Sembunyikan mobile menu toggle di desktop */
+    .mobile-menu-toggle {
+        display: none !important;
+    }
+}
+
+/* Perbaikan posisi mobile menu toggle */
+.mobile-menu-toggle {
+    background: #4e73df !important;
+    border: none !important;
+    color: white !important;
+    width: 45px !important;
+    height: 45px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15) !important;
+    font-size: 1.2rem !important;
+}
+
+.mobile-menu-toggle:hover {
+    background: #858796 !important;
+    transform: scale(1.1) !important;
+}
+
+/* Perbaikan posisi sidebar toggle desktop */
+.sidebar-toggle-outside {
+    background: #4e73df !important;
+    border: none !important;
+    color: white !important;
+    width: 45px !important;
+    height: 45px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15) !important;
+    font-size: 1.2rem !important;
+}
+
+.sidebar-toggle-outside:hover {
+    background: #858796 !important;
+    transform: scale(1.1) !important;
+}

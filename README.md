@@ -1,66 +1,205 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Monitoring Ibu Hamil - Sistem Monitoring Dehidrasi dengan QR Code
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sistem monitoring kesehatan ibu hamil yang terintegrasi dengan IoT untuk memantau asupan air minum harian dengan fitur QR Code untuk identifikasi cepat.
 
-## About Laravel
+## 🚀 Fitur Utama
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### 👥 User Management
+- **Registrasi Ibu Hamil**: Sistem registrasi dengan validasi data
+- **Login/Logout**: Autentikasi aman dengan role-based access
+- **Profil Lengkap**: Data pribadi, foto profil, dan informasi kehamilan
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### 📱 Monitoring Dehidrasi
+- **Input Data Minum**: Pencatatan asupan air minum harian
+- **Grafik Real-time**: Visualisasi data 30 hari terakhir dari database IoT
+- **Target & Pencapaian**: Monitoring target minum harian dengan progress bar
+- **Riwayat Monitoring**: Data historis dengan pagination
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 🔍 QR Code System
+- **QR Code Profil**: Berisi informasi lengkap ibu hamil
+- **Data Terenkripsi**: Informasi profil dalam format JSON yang mudah di-scan
+- **Download & Print**: Fitur download dan print QR code
+- **Auto-refresh**: Data otomatis ter-update setiap 5 menit
 
-## Learning Laravel
+### 🏥 Admin Panel
+- **Dashboard Admin**: Overview sistem monitoring
+- **Manajemen Pasien**: CRUD data pasien ibu hamil
+- **Monitoring Data**: Lihat semua data monitoring
+- **Notifikasi**: Sistem notifikasi untuk admin
+- **Backup Data**: Backup dan restore database
+- **Pengaturan Aplikasi**: Konfigurasi sistem
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### 🌐 IoT Integration
+- **API Endpoints**: REST API untuk integrasi IoT device
+- **Real-time Data**: Update data monitoring secara real-time
+- **Device Management**: Manajemen device IoT per pasien
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## 🛠️ Teknologi yang Digunakan
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- **Backend**: Laravel 10.x (PHP 8.1+)
+- **Database**: MySQL
+- **Frontend**: Bootstrap 5, Chart.js
+- **QR Code**: SimpleSoftwareIO/simple-qrcode
+- **File Storage**: Laravel Storage
+- **Authentication**: Laravel Sanctum
 
-## Laravel Sponsors
+## 📋 Requirements
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+- PHP >= 8.1
+- MySQL >= 5.7
+- Composer
+- Node.js & NPM
+- Laragon/XAMPP (untuk development)
 
-### Premium Partners
+## 🚀 Installation
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+### 1. Clone Repository
+```bash
+git clone <repository-url>
+cd monitoring-ibu-hamil
+```
 
-## Contributing
+### 2. Install Dependencies
+```bash
+composer install
+npm install
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 3. Environment Setup
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-## Code of Conduct
+### 4. Database Configuration
+```bash
+# Edit .env file
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=monitoring-ibu-hamil
+DB_USERNAME=root
+DB_PASSWORD=
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 5. Database Migration & Seeding
+```bash
+php artisan migrate
+php artisan db:seed
+```
 
-## Security Vulnerabilities
+### 6. Storage Setup
+```bash
+php artisan storage:link
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### 7. Build Assets
+```bash
+npm run build
+```
 
-## License
+### 8. Run Application
+```bash
+php artisan serve
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## 🔐 Default Accounts
+
+### Admin
+- **Email**: admin@example.com
+- **Password**: password
+
+### User (Ibu Hamil)
+- **Email**: user@example.com
+- **Password**: password
+
+## 📱 QR Code System
+
+### Struktur Data QR Code
+QR Code berisi informasi profil dalam format JSON:
+
+```json
+{
+    "nama_lengkap": "Nama Ibu Hamil",
+    "email": "email@example.com",
+    "nik": "1234567890123456",
+    "tanggal_lahir": "01/01/1990",
+    "alamat": "Alamat lengkap",
+    "usia_kehamilan": "20 minggu",
+    "target_minum": "2000 ml",
+    "tanggal_registrasi": "26/08/2025",
+    "qr_generated_at": "26/08/2025 13:30:00"
+}
+```
+
+### Cara Penggunaan QR Code
+1. **Lihat QR Code**: Menu "QR Code Profil" di sidebar
+2. **Download**: Tombol download untuk simpan QR code
+3. **Print**: Fitur print untuk cetak QR code
+4. **Scan**: Gunakan aplikasi QR code scanner untuk baca data
+
+## 🌐 API Endpoints
+
+### IoT Integration
+```
+POST /api/iot/monitoring
+GET  /api/iot/monitoring/{pasien_id}/chart
+```
+
+### User Monitoring
+```
+GET  /user/monitoring/chart-data
+GET  /user/qr-code/generate
+GET  /user/qr-code/download
+```
+
+## 📊 Database Structure
+
+### Tabel Utama
+- **users**: Data user (admin & ibu hamil)
+- **pasien**: Data lengkap ibu hamil
+- **monitoring_dehidrasi**: Data monitoring harian
+- **notifikasi**: Sistem notifikasi
+- **pengaturan_aplikasi**: Konfigurasi sistem
+
+## 🔧 Customization
+
+### Menambah Field Baru
+1. Buat migration untuk field baru
+2. Update model dan controller
+3. Update view dan form
+4. Update QR code data structure
+
+### Mengubah Target Minum
+1. Edit field `target_minum_ml` di tabel pasien
+2. Update logic di MonitoringController
+3. Update view progress bar
+
+## 🚨 Troubleshooting
+
+### QR Code Tidak Muncul
+- Pastikan package `simple-qrcode` terinstall
+- Check route `user.qr-code.generate`
+- Verify storage link sudah dibuat
+
+### Foto Tidak Upload
+- Check folder permissions `storage/app/public`
+- Verify `storage:link` sudah dijalankan
+- Check file size limit (max 2MB)
+
+### Grafik Tidak Update
+- Check API endpoint `/user/monitoring/chart-data`
+- Verify data monitoring ada di database
+- Check JavaScript console untuk error
+
+## 📝 License
+
+Project ini dibuat untuk keperluan monitoring kesehatan ibu hamil. Silakan gunakan sesuai kebutuhan.
+
+## 👨‍💻 Developer
+
+Dikembangkan dengan ❤️ menggunakan Laravel Framework
+
+---
+
+**Note**: Pastikan untuk selalu backup database sebelum melakukan update atau perubahan besar pada sistem.

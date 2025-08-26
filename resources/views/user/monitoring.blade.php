@@ -46,11 +46,19 @@
         <div class="card">
             <div class="card-header">
                 <h5 class="card-title mb-0">
-                    <i class="fas fa-chart-bar me-2"></i>Grafik Asupan Air Minum (30 Hari Terakhir)
+                    <i class="fas fa-chart-bar me-2"></i>Grafik Asupan Air Minum (1 Bulan ke Depan)
                 </h5>
             </div>
             <div class="card-body">
-                <canvas id="monthlyChart" height="100"></canvas>
+                <div class="mb-3">
+                    <small class="text-muted">
+                        <i class="fas fa-calendar me-1"></i>
+                        Periode: {{ date('d/m/Y') }} - {{ \Carbon\Carbon::now()->endOfMonth()->format('d/m/Y') }}
+                    </small>
+                </div>
+                <div class="monitoring-chart-container">
+                    <canvas id="monthlyChart" height="100"></canvas>
+                </div>
             </div>
         </div>
     </div>
@@ -71,6 +79,12 @@
                 $target = $pasien ? $pasien->target_minum_ml : 2000;
                 $todayIntake = $today ? $today->jumlah_minum_ml : 0;
                 $percentage = $target > 0 ? min(100, ($todayIntake / $target) * 100) : 0;
+                
+                // Hitung rata-rata minum bulan ini
+                $monthlyAverage = $pasien ? \App\Models\MonitoringDehidrasi::where('pasien_id', $pasien->id)
+                ->whereMonth('tanggal', date('m'))
+                ->whereYear('tanggal', date('Y'))
+                ->avg('jumlah_minum_ml') : 0;
                 @endphp
 
                 <div class="mb-3">
@@ -81,6 +95,11 @@
                 <div class="mb-3">
                     <h4 class="text-success">{{ $target }} ml</h4>
                     <p class="text-muted">Target harian</p>
+                </div>
+
+                <div class="mb-3">
+                    <h5 class="text-info">{{ number_format($monthlyAverage, 0) }} ml</h5>
+                    <p class="text-muted">Rata-rata bulan ini</p>
                 </div>
 
                 <div class="progress mb-3" style="height: 20px;">
@@ -189,36 +208,153 @@
 @section('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Monthly chart
+        // Data dari controller Laravel
+        const chartData = @json($chartData ?? ['labels' => [], 'data' => []]);
+        
+        // Monthly chart dengan data real dari database
         const ctx = document.getElementById('monthlyChart').getContext('2d');
-        new Chart(ctx, {
+        const chart = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30'],
+                labels: chartData.labels,
                 datasets: [{
                     label: 'Asupan Air (ml)',
-                    data: [1800, 2100, 1950, 2200, 1900, 2000, 1850, 2300, 2100, 1950, 2200, 1900, 2000, 1850, 2300, 2100, 1950, 2200, 1900, 2000, 1850, 2300, 2100, 1950, 2200, 1900, 2000, 1850, 2300, 2100],
-                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                    borderColor: 'rgb(75, 192, 192)',
-                    borderWidth: 1
+                    data: chartData.data,
+                    backgroundColor: chartData.data.map(value => {
+                        // Warna berdasarkan nilai: hijau untuk target tercapai, kuning untuk hampir, merah untuk kurang
+                        if (value === 0) return 'rgba(200, 200, 200, 0.6)'; // Abu-abu untuk data kosong
+                        if (value >= 2000) return 'rgba(75, 192, 192, 0.6)'; // Hijau untuk target tercapai
+                        if (value >= 1600) return 'rgba(255, 205, 86, 0.6)'; // Kuning untuk hampir target
+                        return 'rgba(255, 99, 132, 0.6)'; // Merah untuk kurang
+                    }),
+                    borderColor: chartData.data.map(value => {
+                        if (value === 0) return 'rgba(200, 200, 200, 1)';
+                        if (value >= 2000) return 'rgba(75, 192, 192, 1)';
+                        if (value >= 1600) return 'rgba(255, 205, 86, 1)';
+                        return 'rgba(255, 99, 132, 1)';
+                    }),
+                    borderWidth: 1.5,
+                    borderRadius: 4,
+                    borderSkipped: false
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                aspectRatio: 2,
                 scales: {
                     y: {
                         beginAtZero: true,
-                        max: 3000
+                        max: 3000,
+                        ticks: {
+                            callback: function(value) {
+                                return value + ' ml';
+                            },
+                            font: {
+                                size: 12
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(0,0,0,0.1)',
+                            lineWidth: 1
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 45,
+                            autoSkip: true,
+                            maxTicksLimit: 20,
+                            font: {
+                                size: 11
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(0,0,0,0.05)',
+                            lineWidth: 0.5
+                        }
                     }
                 },
                 plugins: {
                     legend: {
                         display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.parsed.y;
+                                if (value === 0) {
+                                    return 'Tidak ada data';
+                                }
+                                return 'Asupan Air: ' + value + ' ml';
+                            }
+                        }
                     }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
                 }
             }
         });
+
+        // Refresh chart setelah submit form
+        document.querySelector('form[action*="monitoring"]').addEventListener('submit', function() {
+            setTimeout(function() {
+                fetch('{{ route("user.monitoring.chart-data") }}')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.labels && data.data) {
+                            chart.data.labels = data.labels;
+                            chart.data.datasets[0].data = data.data;
+                            chart.data.datasets[0].backgroundColor = data.data.map(value => {
+                                if (value === 0) return 'rgba(200, 200, 200, 0.6)';
+                                if (value >= 2000) return 'rgba(75, 192, 192, 0.6)';
+                                if (value >= 1600) return 'rgba(255, 205, 86, 0.6)';
+                                return 'rgba(255, 99, 132, 0.6)';
+                            });
+                            chart.data.datasets[0].borderColor = data.data.map(value => {
+                                if (value === 0) return 'rgba(200, 200, 200, 1)';
+                                if (value >= 2000) return 'rgba(255, 205, 86, 1)';
+                                return 'rgba(255, 99, 132, 1)';
+                            });
+                            chart.update('none');
+                        }
+                    })
+                    .catch(error => {
+                        console.log('Error refreshing chart:', error);
+                    });
+            }, 1000); // Refresh setelah 1 detik
+        });
+
+        // Auto-refresh data setiap 5 menit untuk data real-time dari IoT
+        setInterval(function() {
+            fetch('{{ route("user.monitoring.chart-data") }}')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.labels && data.data) {
+                        // Update chart dengan data terbaru
+                        chart.data.labels = data.labels;
+                        chart.data.datasets[0].data = data.data;
+                        chart.data.datasets[0].backgroundColor = data.data.map(value => {
+                            if (value === 0) return 'rgba(200, 200, 200, 0.6)';
+                            if (value >= 2000) return 'rgba(75, 192, 192, 0.6)';
+                            if (value >= 1600) return 'rgba(255, 205, 86, 0.6)';
+                            return 'rgba(255, 99, 132, 0.6)';
+                        });
+                        chart.data.datasets[0].borderColor = data.data.map(value => {
+                            if (value === 0) return 'rgba(200, 200, 200, 1)';
+                            if (value >= 2000) return 'rgba(75, 192, 192, 1)';
+                            if (value >= 1600) return 'rgba(255, 205, 86, 1)';
+                            return 'rgba(255, 99, 132, 1)';
+                        });
+                        chart.update('none'); // Update tanpa animasi untuk performa
+                    }
+                })
+                .catch(error => {
+                    console.log('Error fetching chart data:', error);
+                });
+        }, 300000); // 5 menit = 300000 ms
     });
 </script>
 @endsection

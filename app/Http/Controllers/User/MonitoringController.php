@@ -6,12 +6,60 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\MonitoringDehidrasi;
+use Carbon\Carbon;
 
 class MonitoringController extends Controller
 {
     public function index()
     {
-        return view('user.monitoring');
+        $pasien = Auth::user()->pasien;
+        
+        if (!$pasien) {
+            return view('user.monitoring')->with('error', 'Data pasien tidak ditemukan');
+        }
+
+        // Ambil data 30 hari terakhir untuk grafik
+        $chartData = $this->getChartData($pasien->id);
+        
+        return view('user.monitoring', compact('chartData'));
+    }
+
+    /**
+     * Ambil data untuk grafik 1 bulan ke depan (dari hari ini sampai September)
+     */
+    private function getChartData($pasienId)
+    {
+        $startDate = Carbon::now();
+        $endDate = Carbon::now()->endOfMonth();
+        
+        // Jika sudah September, gunakan 30 hari ke depan
+        if ($startDate->month >= 9) {
+            $endDate = $startDate->copy()->addDays(30);
+        }
+        
+        // Buat array 1 bulan dengan data kosong
+        $chartData = [];
+        $labels = [];
+        $currentDate = clone $startDate;
+        
+        while ($currentDate->lte($endDate)) {
+            $labels[] = $currentDate->format('d/m');
+            
+            // Cari data dari database untuk tanggal ini
+            $monitoring = MonitoringDehidrasi::where('pasien_id', $pasienId)
+                ->where('tanggal', $currentDate->format('Y-m-d'))
+                ->first();
+            
+            // Jika ada data, gunakan jumlah minum, jika tidak gunakan 0
+            $chartData[] = $monitoring ? $monitoring->jumlah_minum_ml : 0;
+            
+            $currentDate->addDay();
+        }
+        
+        return [
+            'labels' => $labels,
+            'data' => $chartData
+        ];
     }
 
     public function store(Request $request)
@@ -42,13 +90,38 @@ class MonitoringController extends Controller
             $status = 'Berlebihan';
         }
 
-        MonitoringDehidrasi::create([
+        $monitoring = MonitoringDehidrasi::create([
             'pasien_id' => Auth::user()->pasien->id,
             'tanggal' => $request->tanggal,
             'jumlah_minum_ml' => $request->jumlah_minum_ml,
             'status' => $status,
         ]);
 
+        // Debug log
+        \Log::info('Monitoring data created', [
+            'id' => $monitoring->id,
+            'pasien_id' => $monitoring->pasien_id,
+            'tanggal' => $monitoring->tanggal,
+            'jumlah_minum_ml' => $monitoring->jumlah_minum_ml,
+            'status' => $monitoring->status
+        ]);
+
         return redirect()->route('user.monitoring')->with('success', 'Data monitoring berhasil disimpan!');
+    }
+
+    /**
+     * API endpoint untuk mendapatkan data grafik (untuk IoT)
+     */
+    public function getChartDataApi()
+    {
+        $pasien = Auth::user()->pasien;
+        
+        if (!$pasien) {
+            return response()->json(['error' => 'Data pasien tidak ditemukan'], 404);
+        }
+
+        $chartData = $this->getChartData($pasien->id);
+        
+        return response()->json($chartData);
     }
 }

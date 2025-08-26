@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\PengaturanController;
 use App\Http\Controllers\User\DashboardController as UserDashboardController;
 use App\Http\Controllers\User\ProfilController;
 use App\Http\Controllers\User\MonitoringController as UserMonitoringController;
+use App\Http\Controllers\QrCodeController;
 
 // Test route untuk debugging
 Route::get('/test-user-dashboard', [UserDashboardController::class, 'index'])->name('test.user.dashboard');
@@ -44,7 +45,15 @@ Route::middleware(['auth', 'user'])->prefix('user')->group(function () {
     Route::post('/profil', [ProfilController::class, 'update'])->name('user.profil.update');
     Route::get('/monitoring', [UserMonitoringController::class, 'index'])->name('user.monitoring');
     Route::post('/monitoring', [UserMonitoringController::class, 'store'])->name('user.monitoring.store');
+    Route::get('/monitoring/chart-data', [UserMonitoringController::class, 'getChartDataApi'])->name('user.monitoring.chart-data');
+    
+    // QR Code routes (hanya untuk generate dan download)
+    Route::get('/qr-code/generate', [QrCodeController::class, 'generateProfileQrCode'])->name('user.qr-code.generate');
+    Route::get('/qr-code/download', [QrCodeController::class, 'downloadProfileQrCode'])->name('user.qr-code.download');
 });
+
+// Public profile page untuk QR code (bisa diakses tanpa login)
+Route::get('/profile/{user_id}', [QrCodeController::class, 'showPublicProfile'])->name('user.public.profile');
 
 // Default route
 Route::get('/', function () {

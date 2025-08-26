@@ -1,0 +1,88 @@
+/* Custom CSS untuk Monitoring Ibu Hamil */
+
+/* Mobile Toggle Fix */
+@media (max-width: 768px) {
+    .navbar-toggler {
+        display: block !important;
+    }
+    
+    .navbar-collapse {
+        display: none !important;
+    }
+    
+    .navbar-collapse.show {
+        display: block !important;
+    }
+}
+
+@media (min-width: 769px) {
+    .navbar-toggler {
+        display: none !important;
+    }
+    
+    .navbar-collapse {
+        display: flex !important;
+    }
+}
+
+/* QR Code Styling */
+.qr-code-container {
+    text-align: center;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    margin: 20px 0;
+}
+
+.qr-code-image {
+    max-width: 300px;
+    height: auto;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Profile Photo Styling */
+.profile-photo-preview {
+    max-width: 150px;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Chart Container */
+.chart-container {
+    position: relative;
+    height: 300px;
+    margin: 20px 0;
+}
+
+/* Monitoring Chart Container - Optimal untuk Pembacaan */
+.monitoring-chart-container {
+    position: relative;
+    height: 350px;
+    margin: 20px 0;
+}
+
+@media (max-width: 768px) {
+    .monitoring-chart-container {
+        height: 280px;
+    }
+}
+
+/* Loading State */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Print Styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    .print-only {
+        display: block !important;
+    }
+}

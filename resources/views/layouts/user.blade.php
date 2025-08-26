@@ -12,8 +12,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Bootstrap JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- Custom CSS -->
+    @vite(['resources/css/app.css'])
     <style>
         :root {
             --primary-color: #4e73df;
@@ -96,11 +99,11 @@
             }
 
             .sidebar-toggle-outside {
-                display: block;
+                display: block !important;
             }
 
             .mobile-menu-toggle {
-                display: none;
+                display: none !important;
             }
 
             .top-nav {
@@ -168,11 +171,11 @@
             }
 
             .sidebar-toggle-outside {
-                display: none;
+                display: none !important;
             }
 
             .mobile-menu-toggle {
-                display: block;
+                display: block !important;
                 background: var(--primary-color);
                 border: none;
                 color: white;
@@ -186,6 +189,10 @@
                 transition: var(--transition);
                 box-shadow: var(--shadow);
                 font-size: 1.2rem;
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 1001;
             }
 
             .mobile-menu-toggle:hover {
@@ -223,8 +230,9 @@
             .top-nav-right {
                 width: 100%;
                 display: flex;
-                justify-content: space-between;
+                justify-content: flex-end;
                 align-items: center;
+                gap: 1rem;
             }
 
             .user-info {
@@ -373,7 +381,7 @@
             width: 45px;
             height: 45px;
             border-radius: 50%;
-            display: flex;
+            display: none;
             align-items: center;
             justify-content: center;
             cursor: pointer;
@@ -654,6 +662,8 @@
                 </a>
             </div>
 
+
+
             <div class="nav-item">
                 <a href="#" class="nav-link" onclick="showHealthTips()">
                     <i class="fas fa-heartbeat"></i>
@@ -672,12 +682,7 @@
                 </a>
             </div>
 
-            <div class="nav-item">
-                <a href="#" class="nav-link" onclick="showHelp()">
-                    <i class="fas fa-question-circle"></i>
-                    <span>Bantuan</span>
-                </a>
-            </div>
+
 
             <div class="nav-item mt-4">
                 <a href="#" class="nav-link" onclick="showSettings()">
@@ -739,92 +744,140 @@
     <!-- Sidebar Scripts -->
     <script>
         // Sidebar Toggle
-        document.getElementById('sidebarToggle').addEventListener('click', function() {
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('mainContent');
-            const toggleButton = this;
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', function() {
+                try {
+                    const sidebar = document.getElementById('sidebar');
+                    const mainContent = document.getElementById('mainContent');
+                    
+                    if (sidebar && mainContent) {
+                        sidebar.classList.toggle('collapsed');
+                        mainContent.classList.toggle('expanded');
 
-            sidebar.classList.toggle('collapsed');
-            mainContent.classList.toggle('expanded');
+                        // Update toggle button icon
+                        const icon = this.querySelector('i');
+                        if (icon) {
+                            if (sidebar.classList.contains('collapsed')) {
+                                icon.className = 'fas fa-chevron-right';
+                            } else {
+                                icon.className = 'fas fa-bars';
+                            }
+                        }
 
-            // Update toggle button icon
-            const icon = toggleButton.querySelector('i');
-            if (sidebar.classList.contains('collapsed')) {
-                icon.className = 'fas fa-chevron-right';
-            } else {
-                icon.className = 'fas fa-bars';
-            }
-
-            // Save state to localStorage
-            localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
-        });
+                        // Save state to localStorage
+                        localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+                    }
+                } catch (error) {
+                    console.log('Error toggling sidebar:', error);
+                }
+            });
+        }
 
         // Mobile Menu Toggle
-        document.getElementById('mobileMenuToggle').addEventListener('click', function() {
-            const sidebar = document.getElementById('sidebar');
-            const mobileOverlay = document.getElementById('mobileOverlay');
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        if (mobileMenuToggle) {
+            mobileMenuToggle.addEventListener('click', function() {
+                try {
+                    const sidebar = document.getElementById('sidebar');
+                    const mobileOverlay = document.getElementById('mobileOverlay');
+                    
+                    if (sidebar && mobileOverlay) {
+                        sidebar.classList.toggle('show');
+                        mobileOverlay.classList.toggle('show');
 
-            sidebar.classList.toggle('show');
-            mobileOverlay.classList.toggle('show');
-
-            // Prevent body scroll when sidebar is open
-            if (sidebar.classList.contains('show')) {
-                document.body.style.overflow = 'hidden';
-            } else {
-                document.body.style.overflow = '';
-            }
-        });
+                        // Prevent body scroll when sidebar is open
+                        if (sidebar.classList.contains('show')) {
+                            document.body.style.overflow = 'hidden';
+                        } else {
+                            document.body.style.overflow = '';
+                        }
+                    }
+                } catch (error) {
+                    console.log('Error toggling mobile menu:', error);
+                }
+            });
+        }
 
         // Mobile Overlay Click
-        document.getElementById('mobileOverlay').addEventListener('click', function() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.remove('show');
-            this.classList.remove('show');
-            document.body.style.overflow = '';
-        });
+        const mobileOverlay = document.getElementById('mobileOverlay');
+        if (mobileOverlay) {
+            mobileOverlay.addEventListener('click', function() {
+                try {
+                    const sidebar = document.getElementById('sidebar');
+                    if (sidebar) {
+                        sidebar.classList.remove('show');
+                        this.classList.remove('show');
+                        document.body.style.overflow = '';
+                    }
+                } catch (error) {
+                    console.log('Error handling overlay click:', error);
+                }
+            });
+        }
 
         // Restore sidebar state
         document.addEventListener('DOMContentLoaded', function() {
-            const sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-            const toggleButton = document.getElementById('sidebarToggle');
-            const icon = toggleButton.querySelector('i');
+            try {
+                const sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+                const toggleButton = document.getElementById('sidebarToggle');
+                const sidebar = document.getElementById('sidebar');
+                const mainContent = document.getElementById('mainContent');
+                
+                if (toggleButton && sidebar && mainContent) {
+                    const icon = toggleButton.querySelector('i');
+                    
+                    if (sidebarCollapsed) {
+                        sidebar.classList.add('collapsed');
+                        mainContent.classList.add('expanded');
+                        if (icon) {
+                            icon.className = 'fas fa-chevron-right';
+                        }
+                    }
 
-            if (sidebarCollapsed) {
-                document.getElementById('sidebar').classList.add('collapsed');
-                document.getElementById('mainContent').classList.add('expanded');
-                icon.className = 'fas fa-chevron-right';
+                    // Add fade-in animation to main content
+                    mainContent.classList.add('fade-in');
+                }
+            } catch (error) {
+                console.log('Error restoring sidebar state:', error);
             }
-
-            // Add fade-in animation to main content
-            document.getElementById('mainContent').classList.add('fade-in');
         });
 
         // Handle window resize
         window.addEventListener('resize', function() {
-            const sidebar = document.getElementById('sidebar');
-            const mobileOverlay = document.getElementById('mobileOverlay');
+            try {
+                const sidebar = document.getElementById('sidebar');
+                const mobileOverlay = document.getElementById('mobileOverlay');
 
-            if (window.innerWidth > 768) {
-                // Desktop: hide mobile sidebar and overlay
-                sidebar.classList.remove('show');
-                mobileOverlay.classList.remove('show');
-                document.body.style.overflow = '';
+                if (window.innerWidth > 768 && sidebar && mobileOverlay) {
+                    // Desktop: hide mobile sidebar and overlay
+                    sidebar.classList.remove('show');
+                    mobileOverlay.classList.remove('show');
+                    document.body.style.overflow = '';
+                }
+            } catch (error) {
+                console.log('Error handling window resize:', error);
             }
         });
 
         // Close mobile sidebar when clicking outside
         document.addEventListener('click', function(e) {
-            const sidebar = document.getElementById('sidebar');
-            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-            const mobileOverlay = document.getElementById('mobileOverlay');
+            try {
+                const sidebar = document.getElementById('sidebar');
+                const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+                const mobileOverlay = document.getElementById('mobileOverlay');
 
-            if (window.innerWidth <= 768 &&
-                !sidebar.contains(e.target) &&
-                !mobileMenuToggle.contains(e.target) &&
-                !mobileOverlay.contains(e.target)) {
-                sidebar.classList.remove('show');
-                mobileOverlay.classList.remove('show');
-                document.body.style.overflow = '';
+                if (window.innerWidth <= 768 &&
+                    sidebar && mobileMenuToggle && mobileOverlay &&
+                    !sidebar.contains(e.target) &&
+                    !mobileMenuToggle.contains(e.target) &&
+                    !mobileOverlay.contains(e.target)) {
+                    sidebar.classList.remove('show');
+                    mobileOverlay.classList.remove('show');
+                    document.body.style.overflow = '';
+                }
+            } catch (error) {
+                console.log('Error handling click outside:', error);
             }
         });
 
@@ -837,9 +890,7 @@
             alert('Notifikasi akan ditampilkan di sini!');
         }
 
-        function showHelp() {
-            alert('Bantuan akan ditampilkan di sini!');
-        }
+
 
         function showSettings() {
             alert('Pengaturan akan ditampilkan di sini!');
@@ -847,6 +898,47 @@
     </script>
 
     @yield('scripts')
+    
+    <!-- Loading State Management -->
+    <script>
+        // Prevent multiple event binding
+        let eventListenersBound = false;
+        
+        // Initialize only once
+        if (!eventListenersBound) {
+            eventListenersBound = true;
+            
+            // Add loading state management
+            document.addEventListener('DOMContentLoaded', function() {
+                // Remove any existing loading states
+                const loadingElements = document.querySelectorAll('.loading, .loading-spinner');
+                loadingElements.forEach(el => el.remove());
+                
+                // Add page transition effect
+                const mainContent = document.getElementById('mainContent');
+                if (mainContent) {
+                    mainContent.style.opacity = '0';
+                    mainContent.style.transition = 'opacity 0.3s ease';
+                    
+                    setTimeout(() => {
+                        mainContent.style.opacity = '1';
+                    }, 100);
+                }
+            });
+            
+            // Handle page navigation
+            document.addEventListener('click', function(e) {
+                const link = e.target.closest('a');
+                if (link && link.href && !link.href.includes('#') && !link.href.includes('javascript:')) {
+                    // Add loading state for navigation
+                    const mainContent = document.getElementById('mainContent');
+                    if (mainContent) {
+                        mainContent.style.opacity = '0.7';
+                    }
+                }
+            });
+        }
+    </script>
 </body>
 
 </html>
