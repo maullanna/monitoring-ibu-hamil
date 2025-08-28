@@ -232,15 +232,15 @@
                     </div>
                 </div>
                 
-                <div class="info-item">
-                    <div class="info-icon">
-                        <i class="fas fa-baby"></i>
+                                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-baby"></i>
+                        </div>
+                        <div class="info-content">
+                            <div class="info-label">Usia Kehamilan</div>
+                            <div class="info-value">{{ $pasien->usia_kehamilan_minggu ? $pasien->usia_kehamilan_minggu . ' minggu' : 'Belum diisi' }}</div>
+                        </div>
                     </div>
-                    <div class="info-content">
-                        <div class="info-label">Usia Kehamilan</div>
-                        <div class="info-value">{{ $pasien->usia_kehamilan_minggu ? $pasien->usia_kehamilan_minggu . ' minggu' : 'Belum diisi' }}</div>
-                    </div>
-                </div>
                 
                 <div class="info-item">
                     <div class="info-icon">

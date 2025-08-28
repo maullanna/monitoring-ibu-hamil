@@ -129,6 +129,135 @@
 </div>
 
 <div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-chart-pie me-2"></i>Statistik Status Hidrasi
+                </h5>
+            </div>
+            <div class="card-body">
+                @php
+                $pasien = Auth::user()->pasien;
+                $statusStats = $pasien ? $pasien->monitoringDehidrasi()
+                    ->selectRaw('status, COUNT(*) as total')
+                    ->groupBy('status')
+                    ->pluck('total', 'status')
+                    ->toArray() : [];
+                
+                $totalDays = array_sum($statusStats);
+                @endphp
+
+                @if($totalDays > 0)
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="border rounded p-3">
+                                <h4 class="text-success mb-1">{{ $statusStats['Cukup'] ?? 0 }}</h4>
+                                <small class="text-muted">Cukup</small>
+                                <div class="progress mt-2" style="height: 8px;">
+                                    <div class="progress-bar bg-success" style="width: {{ $totalDays > 0 ? (($statusStats['Cukup'] ?? 0) / $totalDays) * 100 : 0 }}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="border rounded p-3">
+                                <h4 class="text-warning mb-1">{{ $statusStats['Berlebihan'] ?? 0 }}</h4>
+                                <small class="text-muted">Berlebihan</small>
+                                <div class="progress mt-2" style="height: 8px;">
+                                    <div class="progress-bar bg-warning" style="width: {{ $totalDays > 0 ? (($statusStats['Berlebihan'] ?? 0) / $totalDays) * 100 : 0 }}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="border rounded p-3">
+                                <h4 class="text-danger mb-1">{{ $statusStats['Kurang'] ?? 0 }}</h4>
+                                <small class="text-muted">Kurang</small>
+                                <div class="progress mt-2" style="height: 8px;">
+                                    <div class="progress-bar bg-danger" style="width: {{ $totalDays > 0 ? (($statusStats['Kurang'] ?? 0) / $totalDays) * 100 : 0 }}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center mt-3">
+                        <small class="text-muted">Total {{ $totalDays }} hari monitoring</small>
+                    </div>
+                @else
+                    <div class="text-center py-4">
+                        <i class="fas fa-chart-pie fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Belum ada data untuk statistik</p>
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-tint me-2"></i>Rata-rata Asupan Air per Pasien
+                </h5>
+            </div>
+            <div class="card-body">
+                @php
+                $pasien = Auth::user()->pasien;
+                $weeklyAverage = $pasien ? $pasien->monitoringDehidrasi()
+                    ->whereBetween('tanggal', [now()->startOfWeek(), now()->endOfWeek()])
+                    ->avg('jumlah_minum_ml') : 0;
+                
+                $monthlyAverage = $pasien ? $pasien->monitoringDehidrasi()
+                    ->whereMonth('tanggal', now()->month)
+                    ->whereYear('tanggal', now()->year)
+                    ->avg('jumlah_minum_ml') : 0;
+                
+                $overallAverage = $pasien ? $pasien->monitoringDehidrasi()
+                    ->avg('jumlah_minum_ml') : 0;
+                @endphp
+
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="border rounded p-3">
+                            <h5 class="text-primary mb-1">{{ number_format($weeklyAverage, 0) }}</h5>
+                            <small class="text-muted">Minggu Ini</small>
+                            <div class="text-muted">ml</div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="border rounded p-3">
+                            <h5 class="text-info mb-1">{{ number_format($monthlyAverage, 0) }}</h5>
+                            <small class="text-muted">Bulan Ini</small>
+                            <div class="text-muted">ml</div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="border rounded p-3">
+                            <h5 class="text-success mb-1">{{ number_format($overallAverage, 0) }}</h5>
+                            <small class="text-muted">Keseluruhan</small>
+                            <div class="text-muted">ml</div>
+                        </div>
+                    </div>
+                </div>
+
+                @if($pasien && $pasien->target_minum_ml > 0)
+                    <div class="mt-3 p-3 bg-light rounded">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted">Target Harian:</span>
+                            <strong>{{ $pasien->target_minum_ml }} ml</strong>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <span class="text-muted">Pencapaian Rata-rata:</span>
+                            <strong class="text-{{ $overallAverage >= $pasien->target_minum_ml ? 'success' : 'warning' }}">
+                                {{ number_format(($overallAverage / $pasien->target_minum_ml) * 100, 1) }}%
+                            </strong>
+                        </div>
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
     <div class="col-md-12">
         <div class="card">
             <div class="card-header">

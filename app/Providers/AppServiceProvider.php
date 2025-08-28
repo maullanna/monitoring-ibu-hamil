@@ -38,5 +38,11 @@ class AppServiceProvider extends ServiceProvider
             $pengaturan = PengaturanAplikasi::first();
             $view->with('pengaturan', $pengaturan);
         });
+        
+        // Share pengaturan aplikasi to all views (fallback)
+        View::composer('*', function ($view) {
+            $pengaturan = PengaturanAplikasi::first();
+            $view->with('pengaturan', $pengaturan);
+        });
     }
 }

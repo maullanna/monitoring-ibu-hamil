@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', 'User Dashboard') - {{ $pengaturan->nama_aplikasi ?? 'Monitoring Ibu Hamil' }}</title>
+    <title>@yield('title', 'User Dashboard') - Monitoring Ibu Hamil</title>
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -17,6 +17,35 @@
 
     <!-- Custom CSS -->
     @vite(['resources/css/app.css'])
+    
+    <!-- Notification System -->
+    <script src="{{ asset('js/notification-system.js') }}"></script>
+    
+    <script>
+    // Update notification badge real-time
+    function updateNotificationBadge() {
+        fetch('/user/notifikasi/unread-count')
+            .then(response => response.json())
+            .then(data => {
+                const badge = document.getElementById('notification-badge');
+                if (badge) {
+                    if (data.count > 0) {
+                        badge.textContent = data.count;
+                        badge.style.display = 'inline';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                }
+            })
+            .catch(error => console.error('Error updating badge:', error));
+    }
+    
+    // Update badge setiap 30 detik
+    setInterval(updateNotificationBadge, 30000);
+    
+    // Update badge saat halaman load
+    document.addEventListener('DOMContentLoaded', updateNotificationBadge);
+    </script>
     <style>
         :root {
             --primary-color: #4e73df;
@@ -630,7 +659,15 @@
         <div class="sidebar-header">
             <div class="sidebar-brand">
                 <div class="sidebar-brand-icon">
-                    <i class="fas fa-baby"></i>
+                    @php
+                        $pengaturan = \App\Models\PengaturanAplikasi::first();
+                    @endphp
+                    
+                    @if($pengaturan && $pengaturan->logo)
+                        <img src="{{ asset('storage/' . $pengaturan->logo) }}" alt="Logo" style="width: 40px; height: 40px; object-fit: contain;">
+                    @else
+                        <i class="fas fa-baby"></i>
+                    @endif
                 </div>
                 <div>
                     <div class="sidebar-brand-text">{{ $pengaturan->nama_aplikasi ?? 'Monitoring Ibu Hamil' }}</div>
@@ -662,34 +699,30 @@
                 </a>
             </div>
 
-
-
             <div class="nav-item">
-                <a href="#" class="nav-link" onclick="showHealthTips()">
-                    <i class="fas fa-heartbeat"></i>
-                    <span>Tips Kesehatan</span>
-                    <span class="nav-badge">New</span>
+                <a href="{{ route('user.rekomendasi') }}" class="nav-link {{ request()->routeIs('user.rekomendasi*') ? 'active' : '' }}">
+                    <i class="fas fa-lightbulb"></i>
+                    <span>Rekomendasi Personal</span>
                 </a>
             </div>
 
+
+
+
+
             <div class="nav-item">
-                <a href="#" class="nav-link" onclick="showNotifications()">
+                <a href="{{ route('user.notifikasi') }}" class="nav-link {{ request()->routeIs('user.notifikasi*') ? 'active' : '' }}">
                     <i class="fas fa-bell"></i>
                     <span>Notifikasi</span>
-                    @if(Auth::user()->notifikasi()->where('is_read', false)->count() > 0)
-                    <span class="nav-badge">{{ Auth::user()->notifikasi()->where('is_read', false)->count() }}</span>
-                    @endif
+                    <span class="nav-badge" id="notification-badge" style="display: {{ Auth::user()->notifikasi()->where('is_read', false)->count() > 0 ? 'inline' : 'none' }};">
+                        {{ Auth::user()->notifikasi()->where('is_read', false)->count() }}
+                    </span>
                 </a>
             </div>
 
 
 
-            <div class="nav-item mt-4">
-                <a href="#" class="nav-link" onclick="showSettings()">
-                    <i class="fas fa-cog"></i>
-                    <span>Pengaturan</span>
-                </a>
-            </div>
+
 
             <div class="nav-item">
                 <form method="POST" action="{{ route('logout') }}" class="d-inline">
@@ -881,20 +914,13 @@
             }
         });
 
-        // Helper functions
-        function showHealthTips() {
-            alert('Tips Kesehatan akan ditampilkan di sini!');
-        }
-
-        function showNotifications() {
-            alert('Notifikasi akan ditampilkan di sini!');
-        }
 
 
 
-        function showSettings() {
-            alert('Pengaturan akan ditampilkan di sini!');
-        }
+
+
+
+
     </script>
 
     @yield('scripts')

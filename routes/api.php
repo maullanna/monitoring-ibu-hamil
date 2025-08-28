@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\User\MonitoringController;
+use App\Http\Controllers\Api\IotController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,7 +22,16 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 // IoT API Routes untuk monitoring air minum
 Route::prefix('iot')->group(function () {
-    // Endpoint untuk IoT device mengirim data monitoring
+    // Endpoint untuk IoT device mengirim data sensor
+    Route::post('/sensor-data', [IotController::class, 'store'])->name('iot.sensor-data.store');
+    
+    // Endpoint untuk mendapatkan data real-time
+    Route::get('/real-time-data', [IotController::class, 'getRealTimeData'])->name('iot.real-time-data');
+    
+    // Endpoint untuk mendapatkan statistik IoT
+    Route::get('/statistics', [IotController::class, 'getStatistics'])->name('iot.statistics');
+    
+    // Legacy endpoint untuk backward compatibility
     Route::post('/monitoring', function (Request $request) {
         $request->validate([
             'device_id' => 'required|string',
@@ -59,10 +69,10 @@ Route::prefix('iot')->group(function () {
             'message' => 'Data monitoring berhasil disimpan',
             'data' => [
                 'id' => $monitoring->id,
-                'jumlah_minum_ml' => $monitoring->jumlah_minum_ml,
+                'jumlah_minum_ml' => $request->jumlah_minum_ml,
                 'status' => $status,
                 'target' => $target,
-                'pencapaian' => min(100, ($monitoring->jumlah_minum_ml / $target) * 100)
+                'pencapaian' => min(100, ($request->jumlah_minum_ml / $target) * 100)
             ]
         ]);
     });

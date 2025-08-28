@@ -5,6 +5,89 @@
 @section('breadcrumb', 'Monitoring Dehidrasi')
 
 @section('content')
+<!-- Filter Section -->
+<div class="row mb-3">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Filter Data</h5>
+            </div>
+            <div class="card-body">
+                <form method="GET" action="{{ route('admin.monitoring') }}" class="row">
+                    <div class="col-md-3">
+                        <label for="start_date">Tanggal Mulai</label>
+                        <input type="date" class="form-control" id="start_date" name="start_date" 
+                               value="{{ request('start_date') }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="end_date">Tanggal Akhir</label>
+                        <input type="date" class="form-control" id="end_date" name="end_date" 
+                               value="{{ request('end_date') }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="status">Status</label>
+                        <select class="form-control" id="status" name="status">
+                            <option value="">Semua Status</option>
+                            <option value="Kurang" {{ request('status') == 'Kurang' ? 'selected' : '' }}>Kurang</option>
+                            <option value="Cukup" {{ request('status') == 'Cukup' ? 'selected' : '' }}>Cukup</option>
+                            <option value="Berlebihan" {{ request('status') == 'Berlebihan' ? 'selected' : '' }}>Berlebihan</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label>&nbsp;</label>
+                        <div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-filter me-2"></i>Filter
+                            </button>
+                            <a href="{{ route('admin.monitoring') }}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Reset
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Export Section -->
+<div class="row mb-3">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Export Data</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <a href="{{ route('admin.monitoring.export', ['format' => 'excel'] + request()->query()) }}" 
+                           class="btn btn-success btn-block">
+                            <i class="fas fa-file-excel me-2"></i>Export Excel
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ route('admin.monitoring.export', ['format' => 'csv'] + request()->query()) }}" 
+                           class="btn btn-info btn-block">
+                            <i class="fas fa-file-csv me-2"></i>Export CSV
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ route('admin.monitoring.export', ['format' => 'pdf'] + request()->query()) }}" 
+                           class="btn btn-danger btn-block">
+                            <i class="fas fa-file-pdf me-2"></i>Export PDF
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="button" class="btn btn-warning btn-block" onclick="printTable()">
+                            <i class="fas fa-print me-2"></i>Print
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="row">
     <div class="col-md-12">
         <div class="card">
@@ -27,7 +110,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach(\App\Models\MonitoringDehidrasi::with(['pasien.user'])->latest()->get() as $monitoring)
+                            @foreach($monitoringData as $monitoring)
                             <tr>
                                 <td>{{ $monitoring->id }}</td>
                                 <td>{{ $monitoring->pasien->user->nama_lengkap }}</td>
@@ -169,9 +252,8 @@ $(document).ready(function() {
     $('#monitoringTable').DataTable({
         "responsive": true,
         "lengthChange": false,
-        "autoWidth": false,
-        "buttons": ["copy", "excel", "pdf", "print"]
-    }).buttons().container().appendTo('#monitoringTable_wrapper .col-md-6:eq(0)');
+        "autoWidth": false
+    });
     
     // Status Chart
     const statusCtx = document.getElementById('statusChart').getContext('2d');

@@ -53,7 +53,16 @@
     <aside class="main-sidebar sidebar-dark-primary elevation-4">
         <!-- Brand Logo -->
         <a href="{{ route('admin.dashboard') }}" class="brand-link">
-            <i class="fas fa-baby brand-image img-circle elevation-3" style="opacity: .8"></i>
+                            @php
+                    $pengaturan = \App\Models\PengaturanAplikasi::first();
+                    $logoUrl = $pengaturan && $pengaturan->logo ? asset('storage/' . $pengaturan->logo) : null;
+                @endphp
+                
+                @if($logoUrl)
+                    <img src="{{ $logoUrl }}" alt="Logo Aplikasi" class="brand-image img-circle elevation-3" style="opacity: .8; width: 32px; height: 32px; object-fit: contain;">
+                @else
+                    <i class="fas fa-baby brand-image img-circle elevation-3" style="opacity: .8"></i>
+                @endif
             <span class="brand-text font-weight-light">{{ $pengaturan->nama_aplikasi ?? 'Monitoring Ibu Hamil' }}</span>
         </a>
 

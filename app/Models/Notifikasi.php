@@ -16,10 +16,15 @@ class Notifikasi extends Model
         'judul',
         'pesan',
         'is_read',
+        'tipe',
+        'prioritas',
+        'action_url',
+        'expires_at',
     ];
 
     protected $casts = [
         'is_read' => 'boolean',
+        'expires_at' => 'datetime',
     ];
 
     /**

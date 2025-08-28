@@ -16,10 +16,15 @@ class MonitoringDehidrasi extends Model
         'tanggal',
         'jumlah_minum_ml',
         'status',
+        'waktu_minum',
+        'sumber_data',
+        'device_id',
+        'lokasi_minum',
     ];
 
     protected $casts = [
         'tanggal' => 'date',
+        'waktu_minum' => 'datetime',
     ];
 
     /**
